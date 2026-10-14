@@ -3,286 +3,474 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pengurus Stok Interaktif 📦</title>
+  <title>Nasi Ayam Balado - QR Menu</title>
   <style>
     :root {
-      --bg: #f4f7fe;
-      --card-bg: #ffffff;
-      --text: #2d3748;
-      --primary: #4f46e5;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --radius: 18px;
+      --bg: #0b0f19;
+      --card-bg: #151b2b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #10b981; /* Hijau Emerald */
+      --primary-hover: #059669;
+      --border: #262f45;
+      --radius: 14px;
     }
 
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
-    .container { width: 100%; max-width: 650px; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); margin: 0; padding: 16px; padding-bottom: 120px; display: flex; justify-content: center; }
+    .container { width: 100%; max-width: 600px; }
 
-    header { text-align: center; margin-bottom: 24px; }
-    header h1 { font-size: 2rem; margin: 0; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 10px; }
-    header p { color: #6b7280; margin-top: 6px; font-size: 0.95rem; }
+    /* Header */
+    header { background: var(--card-bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); text-align: center; margin-bottom: 16px; position: relative; }
+    header h1 { font-size: 1.5rem; margin: 0 0 4px 0; color: var(--text); }
+    header p { color: var(--muted); font-size: 0.85rem; margin: 0; }
+    
+    .admin-toggle { position: absolute; top: 15px; right: 15px; background: #262f45; color: var(--text); border: none; padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
 
-    .card { background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
+    /* Pilihan Jenis Pesanan */
+    .order-type-box { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; background: #151b2b; padding: 4px; border-radius: 12px; border: 1px solid var(--border); }
+    .type-btn { background: transparent; border: none; padding: 10px; font-weight: 600; font-size: 0.85rem; color: var(--muted); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .type-btn.active { background: var(--border); color: white; }
 
-    /* Form Section */
-    .form-group { display: flex; gap: 10px; flex-wrap: wrap; }
-    input, select { flex: 1; min-width: 130px; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
-    input:focus { border-color: var(--primary); }
-    button.btn-add { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: transform 0.1s, background 0.2s; }
-    button.btn-add:hover { background: #4338ca; }
-    button.btn-add:active { transform: scale(0.96); }
+    /* Kategori Tab */
+    .category-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 16px; scrollbar-width: none; }
+    .category-tabs::-webkit-scrollbar { display: none; }
+    .cat-tab { background: var(--card-bg); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: var(--muted); white-space: nowrap; cursor: pointer; }
+    .cat-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    /* Stats Summary */
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; text-align: center; }
-    .stat-box { background: white; padding: 14px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-    .stat-box h3 { margin: 0; font-size: 1.4rem; color: var(--primary); }
-    .stat-box p { margin: 4px 0 0; font-size: 0.8rem; color: #6b7280; font-weight: 600; }
+    /* Senarai Menu */
+    .menu-list { display: flex; flex-direction: column; gap: 12px; }
+    .menu-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: flex; align-items: center; justify-content: space-between; }
+    
+    .menu-left { display: flex; align-items: center; gap: 14px; }
+    .menu-img { width: 60px; height: 60px; background: #262f45; border-radius: 10px; object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: 1px solid var(--border); }
+    
+    .menu-info h3 { margin: 0 0 2px 0; font-size: 1.05rem; color: var(--text); }
+    .menu-info .desc { margin: 0 0 4px 0; font-size: 0.78rem; color: var(--muted); line-height: 1.3; }
+    .menu-info .price { font-size: 0.95rem; font-weight: 700; color: var(--primary); }
 
-    /* Inventory List */
-    .inventory-list { display: flex; flex-direction: column; gap: 12px; }
-    .item-card { background: white; padding: 16px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; border-left: 6px solid var(--success); position: relative; overflow: hidden; }
-    .item-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
-    .item-card.out-of-stock { border-left-color: var(--danger); background: #fff5f5; }
-    .item-card.low-stock { border-left-color: var(--warning); }
+    .btn-add { background: rgba(16, 185, 129, 0.15); color: var(--primary); border: 1px solid var(--primary); padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; cursor: pointer; }
+    .btn-add:active { background: var(--primary); color: white; }
 
-    .item-info { display: flex; align-items: center; gap: 14px; }
-    .item-icon { font-size: 2rem; background: #f3f4f6; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
-    .item-details h4 { margin: 0; font-size: 1.1rem; }
-    .status-badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; margin-top: 4px; }
-    .badge-in { background: #d1fae5; color: #065f46; }
-    .badge-out { background: #fee2e2; color: #991b1b; }
-    .badge-low { background: #fef3c7; color: #92400e; }
+    /* Bar Troli Bawah */
+    .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: center; z-index: 50; }
+    .cart-inner { width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: space-between; }
+    .cart-meta span { font-size: 0.72rem; color: var(--muted); display: block; text-transform: uppercase; font-weight: 700; }
+    .cart-meta strong { font-size: 1.1rem; color: var(--text); }
+    
+    .btn-checkout { background: var(--primary); color: white; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+    .btn-checkout:hover { background: var(--primary-hover); }
 
-    .item-actions { display: flex; align-items: center; gap: 8px; }
-    .qty-btn { width: 34px; height: 34px; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: transform 0.1s, background 0.2s; display: flex; align-items: center; justify-content: center; }
-    .btn-minus { background: #fee2e2; color: var(--danger); }
-    .btn-plus { background: #d1fae5; color: var(--success); }
-    .qty-btn:active { transform: scale(0.88); }
-    .qty-display { font-weight: bold; width: 28px; text-align: center; font-size: 1.1rem; }
+    /* Modal / Panel */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); justify-content: center; align-items: flex-end; z-index: 100; }
+    .modal.active { display: flex; }
+    .modal-box { background: var(--card-bg); width: 100%; max-width: 600px; padding: 20px; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; border: 1px solid var(--border); color: var(--text); }
+    
+    .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .modal-head h2 { margin: 0; font-size: 1.15rem; }
+    .btn-close { background: #262f45; color: white; border: 1px solid var(--border); width: 30px; height: 30px; border-radius: 50%; font-weight: bold; cursor: pointer; }
 
-    .btn-delete { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; opacity: 0.5; transition: opacity 0.2s; margin-left: 6px; }
-    .btn-delete:hover { opacity: 1; }
+    .cart-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+    .stepper { display: flex; align-items: center; gap: 6px; }
+    .step-btn { width: 24px; height: 24px; border: 1px solid var(--border); background: #262f45; color: white; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-    /* Pop Animation */
-    @keyframes popIn {
-      0% { transform: scale(0.8); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .form-group { margin-top: 14px; }
+    .form-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: var(--muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; background: #0b0f19; color: white; outline: none; }
+    
+    .btn-wa { width: 100%; background: #25d366; color: white; border: none; padding: 13px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; margin-top: 18px; cursor: pointer; text-align: center; }
+
+    /* Admin Panel Item List */
+    .admin-item { background: #0b0f19; border: 1px solid var(--border); padding: 10px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+    .btn-danger { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
   </style>
 </head>
 <body>
 
 <div class="container">
+  <!-- Header Kedai -->
   <header>
-    <h1>📦 Semakan Stok Interaktif</h1>
-    <p>Pantau barang ada & kehabisan stok secara langsung</p>
+    <button class="admin-toggle" onclick="toggleAdminPanel()">⚙️ Urus Menu</button>
+    <h1>🔥 Nasi Ayam Balado</h1>
+    <p>Pilih set kegemaran anda & hantar pesanan.</p>
   </header>
 
-  <!-- Form Tambah Stok -->
-  <div class="card">
-    <form id="stockForm" class="form-group">
-      <input type="text" id="itemName" placeholder="Nama barang (cth: Ayam, Beras)" required>
-      <input type="number" id="itemQty" placeholder="Kuantiti" min="0" required>
-      <select id="itemCategory">
-        <option value="🍗">🍗 Makanan</option>
-        <option value="🥤">🥤 Minuman</option>
-        <option value="🧹">🧹 Barang Dapur/Pembersih</option>
-        <option value="📦">📦 Am</option>
-      </select>
-      <button type="submit" class="btn-add">➕ Tambah</button>
-    </form>
+  <!-- Pilihan Jenis Pesanan -->
+  <div class="order-type-box">
+    <button class="type-btn active" id="typeDineIn" onclick="setOrderType('Dine-In')">🍽️ Makan di Meja</button>
+    <button class="type-btn" id="typePickup" onclick="setOrderType('Pickup')">🛍️ Ambil Sendiri (Pickup)</button>
   </div>
 
-  <!-- Statistik Ringkas -->
-  <div class="stats">
-    <div class="stat-box">
-      <h3 id="totalItems">0</h3>
-      <p>JUMLAH ITEM</p>
-    </div>
-    <div class="stat-box">
-      <h3 id="inStockItems" style="color: var(--success);">0</h3>
-      <p>ADA STOK</p>
-    </div>
-    <div class="stat-box">
-      <h3 id="outOfStockItems" style="color: var(--danger);">0</h3>
-      <p>HABIS STOK</p>
-    </div>
-  </div>
+  <!-- Kategori Tab -->
+  <div class="category-tabs" id="categoryTabs"></div>
 
-  <!-- Senarai Stok -->
-  <div id="inventoryList" class="inventory-list">
-    <!-- Item akan dimasukkan secara dinamik oleh JavaScript -->
+  <!-- Senarai Menu -->
+  <div class="menu-list" id="menuContainer"></div>
+</div>
+
+<!-- Bar Semak Troli -->
+<div class="cart-bar" id="cartBar" style="display: none;">
+  <div class="cart-inner">
+    <div class="cart-meta">
+      <span>Jumlah Pesanan</span>
+      <strong id="cartTotalDisplay">RM 0.00</strong>
+    </div>
+    <button class="btn-checkout" onclick="openModal()">Semak Pesanan</button>
+  </div>
+</div>
+
+<!-- Modal Pesanan Pelanggan -->
+<div class="modal" id="orderModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Pengesahan Pesanan</h2>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    
+    <div id="modalItemList"></div>
+
+    <div class="form-group" id="locationGroup">
+      <label id="locationLabel" for="locationInput">Nombor Meja:</label>
+      <input type="text" id="locationInput" placeholder="Cth: Meja 4">
+    </div>
+
+    <div class="form-group">
+      <label for="customerName">Nama Anda:</label>
+      <input type="text" id="customerName" placeholder="Cth: Encik Ali">
+    </div>
+
+    <div class="form-group">
+      <label for="noteInput">Nota Tambahan (Pilihan):</label>
+      <input type="text" id="noteInput" placeholder="Cth: Extra pedas">
+    </div>
+
+    <button class="btn-wa" onclick="sendToWhatsApp()">
+      Hantar Pesanan ke WhatsApp Kedai
+    </button>
+  </div>
+</div>
+
+<!-- Modal Admin / Urus Menu & Upload Gambar -->
+<div class="modal" id="adminModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>⚙️ Urus & Tambah Menu</h2>
+      <button class="btn-close" onclick="toggleAdminPanel()">✕</button>
+    </div>
+
+    <p style="font-size: 0.8rem; color: var(--muted); margin-top:0;">Tambah menu baharu atau muat naik gambar terus dari peranti anda.</p>
+
+    <div class="form-group">
+      <label>Nama Menu:</label>
+      <input type="text" id="newName" placeholder="Cth: Set D Balado Extra">
+    </div>
+    <div class="form-group">
+      <label>Harga (RM):</label>
+      <input type="number" step="0.10" id="newPrice" placeholder="Cth: 13.00">
+    </div>
+    <div class="form-group">
+      <label>Kategori:</label>
+      <input type="text" id="newCategory" value="Set Nasi Ayam" placeholder="Kategori">
+    </div>
+    <div class="form-group">
+      <label>Penerangan Ringkas:</label>
+      <input type="text" id="newDesc" placeholder="Cth: Ayam besar + Extra sambal">
+    </div>
+    <div class="form-group">
+      <label>Muat Naik Gambar Makanan:</label>
+      <input type="file" id="newImageFile" accept="image/*">
+    </div>
+
+    <button class="btn-add" style="width:100%; margin-top:15Py; padding:12px;" onclick="addNewMenuItem()">➕ Simpan Menu Baru</button>
+
+    <hr style="border-color: var(--border); margin: 20px 0;">
+    <h3>Senarai Menu Semasa:</h3>
+    <div id="adminItemList"></div>
   </div>
 </div>
 
 <script>
-  // Kesan Bunyi Menggunakan Web Audio API (Tiada fail luaran diperlukan)
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  // Data Asal Menu Nasi Ayam Balado (Disimpan dalam localStorage jika ada)
+  const defaultMenu = [
+    { id: 1, name: "Nasi Ayam Balado Basic", price: 9.50, category: "Set Nasi Ayam", image: "🍗", desc: "Nasi wangi, ayam goreng rangup & sambal balado." },
+    { id: 2, name: "Nasi Ayam Balado Standard", price: 11.00, category: "Set Nasi Ayam", image: "🍛", desc: "Ayam bahagian peha/dada + ulam-ulaman." },
+    { id: 3, name: "Nasi Ayam Balado Premium", price: 12.00, category: "Set Nasi Ayam", image: "🔥", desc: "Ayam besar + tauhu tempe + sambal extra." },
+    { id: 4, name: "Nasi Ayam Balado Luxury", price: 15.00, category: "Set Nasi Ayam", image: "👑", desc: "Full set istimewa + telur gred A + air sirap." },
+    { id: 5, name: "Teh O Ais", price: 2.00, category: "Minuman", image: "🥤", desc: "Sejuk menyegarkan." },
+    { id: 6, name: "Sirap Bandung", price: 2.50, category: "Minuman", image: "🍹", desc: "Manis berkrim." }
+  ];
 
-  function playSound(type) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+  let menuData = JSON.parse(localStorage.getItem('balado_menu_data')) || defaultMenu;
+  let currentCategory = "Semua";
+  let orderType = "Dine-In";
+  let cart = {};
+
+  function saveMenu() {
+    localStorage.setItem('balado_menu_data', JSON.stringify(menuData));
+    renderTabs();
+    renderMenu();
+  }
+
+  function getCategories() {
+    const cats = menuData.map(item => item.category);
+    return ["Semua", ...new Set(cats)];
+  }
+
+  function renderTabs() {
+    const tabsContainer = document.getElementById('categoryTabs');
+    tabsContainer.innerHTML = '';
     
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    getCategories().forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = `cat-tab ${currentCategory === cat ? 'active' : ''}`;
+      btn.innerText = cat;
+      btn.onclick = () => {
+        currentCategory = cat;
+        renderTabs();
+        renderMenu();
+      };
+      tabsContainer.appendChild(btn);
+    });
+  }
 
-    const now = audioCtx.currentTime;
+  function renderMenu() {
+    const container = document.getElementById('menuContainer');
+    container.innerHTML = '';
 
-    if (type === 'add') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(440, now);
-      osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-      osc.start(now);
-      osc.stop(now + 0.15);
-    } else if (type === 'decrease') {
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(350, now);
-      osc.frequency.exponentialRampToValueAtTime(180, now + 0.12);
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-      osc.start(now);
-      osc.stop(now + 0.12);
-    } else if (type === 'empty') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(200, now);
-      osc.frequency.setValueAtTime(120, now + 0.1);
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-      osc.start(now);
-      osc.stop(now + 0.3);
-    } else if (type === 'delete') {
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(300, now);
-      osc.frequency.exponentialRampToValueAtTime(100, now + 0.15);
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-      osc.start(now);
-      osc.stop(now + 0.15);
+    const filtered = currentCategory === "Semua" 
+      ? menuData 
+      : menuData.filter(item => item.category === currentCategory);
+
+    filtered.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'menu-card';
+      
+      // Semak sama ada imej adalah emoji atau fail gambar (base64)
+      let imgContent = item.image.startsWith('data:image') 
+        ? `<img src="${item.image}" style="width:100%; height:100%; border-radius:10px; object-fit:cover;">` 
+        : item.image;
+
+      card.innerHTML = `
+        <div class="menu-left">
+          <div class="menu-img">${imgContent}</div>
+          <div class="menu-info">
+            <h3>${item.name}</h3>
+            <p class="desc">${item.desc}</p>
+            <div class="price">RM ${item.price.toFixed(2)}</div>
+          </div>
+        </div>
+        <button class="btn-add" onclick="addToCart(${item.id})">+ Pilih</button>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function setOrderType(type) {
+    orderType = type;
+    document.getElementById('typeDineIn').className = `type-btn ${type === 'Dine-In' ? 'active' : ''}`;
+    document.getElementById('typePickup').className = `type-btn ${type === 'Pickup' ? 'active' : ''}`;
+    
+    const label = document.getElementById('locationLabel');
+    const input = document.getElementById('locationInput');
+    if (type === 'Dine-In') {
+      label.innerText = "Nombor Meja:";
+      input.placeholder = "Cth: Meja 4";
+    } else {
+      label.innerText = "Masa Anggaran Pickup:";
+      input.placeholder = "Cth: Pukul 1:30 petang";
     }
   }
 
-  // Data Stok Awal (Simpan dalam LocalStorage)
-  let inventory = JSON.parse(localStorage.getItem('my_inventory')) || [
-    { id: 1, name: "Ayam Goreng", qty: 15, icon: "🍗" },
-    { id: 2, name: "Sos Balado", qty: 2, icon: "🥤" },
-    { id: 3, name: "Beras 10kg", qty: 0, icon: "📦" }
-  ];
-
-  const stockForm = document.getElementById('stockForm');
-  const inventoryList = document.getElementById('inventoryList');
-
-  function saveAndRender() {
-    localStorage.setItem('my_inventory', JSON.stringify(inventory));
-    renderInventory();
+  function addToCart(id) {
+    if (!cart[id]) {
+      cart[id] = { ...menuData.find(m => m.id === id), qty: 1 };
+    } else {
+      cart[id].qty++;
+    }
+    updateCartBar();
   }
 
-  function renderInventory() {
-    inventoryList.innerHTML = '';
+  function changeQty(id, delta) {
+    if (cart[id]) {
+      cart[id].qty += delta;
+      if (cart[id].qty <= 0) delete cart[id];
+    }
+    updateCartBar();
+    renderModalItems();
+  }
 
-    let total = inventory.length;
-    let inStock = 0;
-    let outOfStock = 0;
+  function updateCartBar() {
+    const bar = document.getElementById('cartBar');
+    const totalDisplay = document.getElementById('cartTotalDisplay');
+    
+    let count = 0;
+    let price = 0;
 
-    inventory.forEach((item) => {
-      if (item.qty > 0) inStock++;
-      else outOfStock++;
-
-      const itemCard = document.createElement('div');
-      
-      let statusClass = '';
-      let badgeHtml = '';
-      
-      if (item.qty === 0) {
-        statusClass = 'out-of-stock';
-        badgeHtml = `<span class="status-badge badge-out">❌ Habis Stok</span>`;
-      } else if (item.qty <= 3) {
-        statusClass = 'low-stock';
-        badgeHtml = `<span class="status-badge badge-low">⚠️ Stok Sedikit</span>`;
-      } else {
-        badgeHtml = `<span class="status-badge badge-in">✅ Ada Stok</span>`;
-      }
-
-      itemCard.className = `item-card ${statusClass} pop`;
-      itemCard.innerHTML = `
-        <div class="item-info">
-          <div class="item-icon">${item.icon}</div>
-          <div class="item-details">
-            <h4>${item.name}</h4>
-            ${badgeHtml}
-          </div>
-        </div>
-        <div class="item-actions">
-          <button class="qty-btn btn-minus" onclick="updateQty(${item.id}, -1)">-</button>
-          <span class="qty-display">${item.qty}</span>
-          <button class="qty-btn btn-plus" onclick="updateQty(${item.id}, 1)">+</button>
-          <button class="btn-delete" onclick="deleteItem(${item.id})" title="Padam Item">🗑️</button>
-        </div>
-      `;
-
-      inventoryList.appendChild(itemCard);
+    Object.values(cart).forEach(item => {
+      count += item.qty;
+      price += item.price * item.qty;
     });
 
-    document.getElementById('totalItems').innerText = total;
-    document.getElementById('inStockItems').innerText = inStock;
-    document.getElementById('outOfStockItems').innerText = outOfStock;
+    if (count > 0) {
+      bar.style.display = 'flex';
+      totalDisplay.innerText = `RM ${price.toFixed(2)} (${count} item)`;
+    } else {
+      bar.style.display = 'none';
+      closeModal();
+    }
   }
 
-  // Tambah Item Baharu
-  stockForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('itemName').value;
-    const qty = parseInt(document.getElementById('itemQty').value);
-    const icon = document.getElementById('itemCategory').value;
+  function openModal() {
+    document.getElementById('orderModal').classList.add('active');
+    renderModalItems();
+  }
 
+  function closeModal() {
+    document.getElementById('orderModal').classList.remove('active');
+  }
+
+  function renderModalItems() {
+    const list = document.getElementById('modalItemList');
+    list.innerHTML = '';
+
+    const items = Object.values(cart);
+    if (items.length === 0) {
+      list.innerHTML = '<p style="text-align:center; color:var(--muted);">Troli kosong</p>';
+      return;
+    }
+
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'cart-row';
+      row.innerHTML = `
+        <div>
+          <strong>${item.name}</strong><br>
+          <span style="color:var(--muted); font-size:0.75rem;">RM ${item.price.toFixed(2)} x ${item.qty}</span>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="changeQty(${item.id}, -1)">-</button>
+          <span><b>${item.qty}</b></span>
+          <button class="step-btn" onclick="changeQty(${item.id}, 1)">+</button>
+        </div>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  // Admin Panel Toggle & Pengurusan
+  function toggleAdminPanel() {
+    const modal = document.getElementById('adminModal');
+    modal.classList.toggle('active');
+    renderAdminItemList();
+  }
+
+  function renderAdminItemList() {
+    const container = document.getElementById('adminItemList');
+    container.innerHTML = '';
+    menuData.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'admin-item';
+      div.innerHTML = `
+        <span><b>${item.name}</b> (RM ${item.price.toFixed(2)})</span>
+        <button class="btn-danger" onclick="deleteMenuItem(${item.id})">Padam</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function addNewMenuItem() {
+    const name = document.getElementById('newName').value.trim();
+    const price = parseFloat(document.getElementById('newPrice').value);
+    const category = document.getElementById('newCategory').value.trim();
+    const desc = document.getElementById('newDesc').value.trim();
+    const fileInput = document.getElementById('newImageFile');
+
+    if (!name || isNaN(price)) {
+      alert('Sila masukkan nama dan harga yang sah.');
+      return;
+    }
+
+    if (fileInput.files && fileInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        saveNewItem(name, price, category, desc, e.target.result);
+      };
+      reader.readAsDataURL(fileInput.files[0]);
+    } else {
+      saveNewItem(name, price, category, desc, "🍗");
+    }
+  }
+
+  function saveNewItem(name, price, category, desc, image) {
     const newItem = {
       id: Date.now(),
       name,
-      qty,
-      icon
+      price,
+      category: category || "Lain-lain",
+      desc: desc || "Menu istimewa kedai.",
+      image
     };
+    menuData.push(newItem);
+    saveMenu();
+    alert('Menu berjaya ditambah!');
+    document.getElementById('newName').value = '';
+    document.getElementById('newPrice').value = '';
+    document.getElementById('newDesc').value = '';
+    document.getElementById('newImageFile').value = '';
+    renderAdminItemList();
+  }
 
-    inventory.push(newItem);
-    playSound('add');
-    saveAndRender();
-
-    stockForm.reset();
-  });
-
-  // Kemaskini Kuantiti (+ / -)
-  window.updateQty = function(id, change) {
-    const item = inventory.find(i => i.id === id);
-    if (item) {
-      const oldQty = item.qty;
-      item.qty += change;
-      if (item.qty < 0) item.qty = 0;
-
-      if (item.qty === 0 && oldQty > 0) {
-        playSound('empty');
-      } else if (change > 0) {
-        playSound('add');
-      } else if (change < 0 && item.qty > 0) {
-        playSound('decrease');
-      }
-
-      saveAndRender();
+  function deleteMenuItem(id) {
+    if (confirm('Adakah anda pasti mahu padam menu ini?')) {
+      menuData = menuData.filter(item => item.id !== id);
+      saveMenu();
+      renderAdminItemList();
     }
-  };
+  }
 
-  // Padam Item
-  window.deleteItem = function(id) {
-    inventory = inventory.filter(i => i.id !== id);
-    playSound('delete');
-    saveAndRender();
-  };
+  function sendToWhatsApp() {
+    const locVal = document.getElementById('locationInput').value.trim();
+    const nameVal = document.getElementById('customerName').value.trim();
+    const noteVal = document.getElementById('noteInput').value.trim();
 
-  // Mula Paparan
-  renderInventory();
+    if (!nameVal) {
+      alert('Sila masukkan nama anda.');
+      document.getElementById('customerName').focus();
+      return;
+    }
+    if (!locVal) {
+      alert(orderType === 'Dine-In' ? 'Sila masukkan nombor meja.' : 'Sila masukkan masa pengambilan.');
+      document.getElementById('locationInput').focus();
+      return;
+    }
+
+    const phone = "60192994781"; // Ganti dengan nombor WhatsApp kedai anda (contoh: 60123456789)
+    let text = `*PESANAN NASI AYAM BALADO (${orderType.toUpperCase()})*\n`;
+    text += `👤 *Nama:* ${nameVal}\n`;
+    if (orderType === 'Dine-In') {
+      text += `📍 *Meja:* ${locVal}\n`;
+    } else {
+      text += `🛍️ *Masa Pickup:* ${locVal}\n`;
+    }
+    if (noteVal) text += `📝 *Nota:* ${noteVal}\n`;
+    text += `\n*Senarai Pesanan:*\n`;
+
+    let total = 0;
+    Object.values(cart).forEach(item => {
+      let sub = item.price * item.qty;
+      total += sub;
+      text += `- ${item.name} (${item.qty}x) = RM ${sub.toFixed(2)}\n`;
+    });
+
+    text += `\n*Jumlah Keseluruhan: RM ${total.toFixed(2)}*`;
+
+    const url = `https://wa.me/${60192993681}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  }
+
+  // Mulakan paparan
+  renderTabs();
+  renderMenu();
 </script>
 
 </body>
