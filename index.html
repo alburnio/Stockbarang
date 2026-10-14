@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pengurus Stok Interaktif 📦</title>
+  <style>
+    :root {
+      --bg: #f4f7fe;
+      --card-bg: #ffffff;
+      --text: #2d3748;
+      --primary: #4f46e5;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+    .container { width: 100%; max-width: 650px; }
+
+    header { text-align: center; margin-bottom: 24px; }
+    header h1 { font-size: 2rem; margin: 0; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 10px; }
+    header p { color: #6b7280; margin-top: 6px; font-size: 0.95rem; }
+
+    .card { background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
+
+    /* Form Section */
+    .form-group { display: flex; gap: 10px; flex-wrap: wrap; }
+    input, select { flex: 1; min-width: 130px; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+    input:focus { border-color: var(--primary); }
+    button.btn-add { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: transform 0.1s, background 0.2s; }
+    button.btn-add:hover { background: #4338ca; }
+    button.btn-add:active { transform: scale(0.96); }
+
+    /* Stats Summary */
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; text-align: center; }
+    .stat-box { background: white; padding: 14px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .stat-box h3 { margin: 0; font-size: 1.4rem; color: var(--primary); }
+    .stat-box p { margin: 4px 0 0; font-size: 0.8rem; color: #6b7280; font-weight: 600; }
+
+    /* Inventory List */
+    .inventory-list { display: flex; flex-direction: column; gap: 12px; }
+    .item-card { background: white; padding: 16px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; border-left: 6px solid var(--success); position: relative; overflow: hidden; }
+    .item-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+    .item-card.out-of-stock { border-left-color: var(--danger); background: #fff5f5; }
+    .item-card.low-stock { border-left-color: var(--warning); }
+
+    .item-info { display: flex; align-items: center; gap: 14px; }
+    .item-icon { font-size: 2rem; background: #f3f4f6; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+    .item-details h4 { margin: 0; font-size: 1.1rem; }
+    .status-badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; margin-top: 4px; }
+    .badge-in { background: #d1fae5; color: #065f46; }
+    .badge-out { background: #fee2e2; color: #991b1b; }
+    .badge-low { background: #fef3c7; color: #92400e; }
+
+    .item-actions { display: flex; align-items: center; gap: 8px; }
+    .qty-btn { width: 34px; height: 34px; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: transform 0.1s, background 0.2s; display: flex; align-items: center; justify-content: center; }
+    .btn-minus { background: #fee2e2; color: var(--danger); }
+    .btn-plus { background: #d1fae5; color: var(--success); }
+    .qty-btn:active { transform: scale(0.88); }
+    .qty-display { font-weight: bold; width: 28px; text-align: center; font-size: 1.1rem; }
+
+    .btn-delete { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; opacity: 0.5; transition: opacity 0.2s; margin-left: 6px; }
+    .btn-delete:hover { opacity: 1; }
+
+    /* Pop Animation */
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>📦 Semakan Stok Interaktif</h1>
+    <p>Pantau barang ada & kehabisan stok secara langsung</p>
+  </header>
+
+  <!-- Form Tambah Stok -->
+  <div class="card">
+    <form id="stockForm" class="form-group">
+      <input type="text" id="itemName" placeholder="Nama barang (cth: Ayam, Beras)" required>
+      <input type="number" id="itemQty" placeholder="Kuantiti" min="0" required>
+      <select id="itemCategory">
+        <option value="🍗">🍗 Makanan</option>
+        <option value="🥤">🥤 Minuman</option>
+        <option value="🧹">🧹 Barang Dapur/Pembersih</option>
+        <option value="📦">📦 Am</option>
+      </select>
+      <button type="submit" class="btn-add">➕ Tambah</button>
+    </form>
+  </div>
+
+  <!-- Statistik Ringkas -->
+  <div class="stats">
+    <div class="stat-box">
+      <h3 id="totalItems">0</h3>
+      <p>JUMLAH ITEM</p>
+    </div>
+    <div class="stat-box">
+      <h3 id="inStockItems" style="color: var(--success);">0</h3>
+      <p>ADA STOK</p>
+    </div>
+    <div class="stat-box">
+      <h3 id="outOfStockItems" style="color: var(--danger);">0</h3>
+      <p>HABIS STOK</p>
+    </div>
+  </div>
+
+  <!-- Senarai Stok -->
+  <div id="inventoryList" class="inventory-list">
+    <!-- Item akan dimasukkan secara dinamik oleh JavaScript -->
+  </div>
+</div>
+
+<script>
+  // Kesan Bunyi Menggunakan Web Audio API (Tiada fail luaran diperlukan)
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+
+    if (type === 'add') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } else if (type === 'decrease') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(350, now);
+      osc.frequency.exponentialRampToValueAtTime(180, now + 0.12);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+      osc.start(now);
+      osc.stop(now + 0.12);
+    } else if (type === 'empty') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(200, now);
+      osc.frequency.setValueAtTime(120, now + 0.1);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    } else if (type === 'delete') {
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    }
+  }
+
+  // Data Stok Awal (Simpan dalam LocalStorage)
+  let inventory = JSON.parse(localStorage.getItem('my_inventory')) || [
+    { id: 1, name: "Ayam Goreng", qty: 15, icon: "🍗" },
+    { id: 2, name: "Sos Balado", qty: 2, icon: "🥤" },
+    { id: 3, name: "Beras 10kg", qty: 0, icon: "📦" }
+  ];
+
+  const stockForm = document.getElementById('stockForm');
+  const inventoryList = document.getElementById('inventoryList');
+
+  function saveAndRender() {
+    localStorage.setItem('my_inventory', JSON.stringify(inventory));
+    renderInventory();
+  }
+
+  function renderInventory() {
+    inventoryList.innerHTML = '';
+
+    let total = inventory.length;
+    let inStock = 0;
+    let outOfStock = 0;
+
+    inventory.forEach((item) => {
+      if (item.qty > 0) inStock++;
+      else outOfStock++;
+
+      const itemCard = document.createElement('div');
+      
+      let statusClass = '';
+      let badgeHtml = '';
+      
+      if (item.qty === 0) {
+        statusClass = 'out-of-stock';
+        badgeHtml = `<span class="status-badge badge-out">❌ Habis Stok</span>`;
+      } else if (item.qty <= 3) {
+        statusClass = 'low-stock';
+        badgeHtml = `<span class="status-badge badge-low">⚠️ Stok Sedikit</span>`;
+      } else {
+        badgeHtml = `<span class="status-badge badge-in">✅ Ada Stok</span>`;
+      }
+
+      itemCard.className = `item-card ${statusClass} pop`;
+      itemCard.innerHTML = `
+        <div class="item-info">
+          <div class="item-icon">${item.icon}</div>
+          <div class="item-details">
+            <h4>${item.name}</h4>
+            ${badgeHtml}
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="qty-btn btn-minus" onclick="updateQty(${item.id}, -1)">-</button>
+          <span class="qty-display">${item.qty}</span>
+          <button class="qty-btn btn-plus" onclick="updateQty(${item.id}, 1)">+</button>
+          <button class="btn-delete" onclick="deleteItem(${item.id})" title="Padam Item">🗑️</button>
+        </div>
+      `;
+
+      inventoryList.appendChild(itemCard);
+    });
+
+    document.getElementById('totalItems').innerText = total;
+    document.getElementById('inStockItems').innerText = inStock;
+    document.getElementById('outOfStockItems').innerText = outOfStock;
+  }
+
+  // Tambah Item Baharu
+  stockForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('itemName').value;
+    const qty = parseInt(document.getElementById('itemQty').value);
+    const icon = document.getElementById('itemCategory').value;
+
+    const newItem = {
+      id: Date.now(),
+      name,
+      qty,
+      icon
+    };
+
+    inventory.push(newItem);
+    playSound('add');
+    saveAndRender();
+
+    stockForm.reset();
+  });
+
+  // Kemaskini Kuantiti (+ / -)
+  window.updateQty = function(id, change) {
+    const item = inventory.find(i => i.id === id);
+    if (item) {
+      const oldQty = item.qty;
+      item.qty += change;
+      if (item.qty < 0) item.qty = 0;
+
+      if (item.qty === 0 && oldQty > 0) {
+        playSound('empty');
+      } else if (change > 0) {
+        playSound('add');
+      } else if (change < 0 && item.qty > 0) {
+        playSound('decrease');
+      }
+
+      saveAndRender();
+    }
+  };
+
+  // Padam Item
+  window.deleteItem = function(id) {
+    inventory = inventory.filter(i => i.id !== id);
+    playSound('delete');
+    saveAndRender();
+  };
+
+  // Mula Paparan
+  renderInventory();
+</script>
+
+</body>
+</html>
